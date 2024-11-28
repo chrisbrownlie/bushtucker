@@ -17,6 +17,8 @@ challenges <- tibble::tibble()
 
 for (n in season_numbers) {
   cli::cli_alert_info("Starting for season {n}")
+
+  ### SETUP #####
   # Read the wiki page HTML
   wiki_page <- str_c(
     "https://en.wikipedia.org/wiki/I%27m_a_Celebrity...Get_Me_Out_of_Here!_(British_TV_series)_series_",
@@ -69,6 +71,9 @@ for (n in season_numbers) {
 
 
   cli::cli_alert("Tables extracted")
+
+
+  ### CONTESTANTS #####
   cli::cli_alert("Beginning contestants table")
 
   # Tidy up contestants table
@@ -119,6 +124,7 @@ for (n in season_numbers) {
       date_eliminated
     )
 
+  ### Vote results/number of trials #####
   # Get n trials
   cli::cli_alert("Beginning daily table")
   n_trials_tbl <- tables[["daily_results"]]
@@ -234,6 +240,7 @@ for (n in season_numbers) {
                          vote_results)
   }
 
+  ### TRIALS #####
   # Tidy up trials - use raw table as stars col is weird
   cli::cli_alert("Beginning trials table")
   trials_raw <- tables_raw[["trials"]]
@@ -256,6 +263,37 @@ for (n in season_numbers) {
         stars
       }
     )
+
+  trial_decision <- rows |>
+    map_chr(
+      \(x) {
+        z <- x |>
+          html_children() |>
+          html_attr("style") |>
+          str_extract("(?<=(background(-color)?|bgcolor):)(#)?[[:alnum:]]+") |>
+          unique()
+        z <- first(z[!is.na(z)])
+        if (length(z) == 0) z <- "unknown"
+        z
+      }
+    ) |>
+    coalesce(
+      html_attr(rows, "style") |>
+        str_extract("(?<=(background(-color)?|bgcolor):)(#)?[[:alnum:]]+"),
+      html_attr(rows, "bgcolor")
+    ) |>
+    case_match(
+      "#FFFF99" ~ "public",
+      "#ff9" ~ "public",
+      "#9cf" ~ "contestants",
+      "#99CCFF" ~ "contestants",
+      "#99ccff" ~ "contestants",
+      "lightgreen" ~ "showrunners",
+      "#90EE90" ~ "showrunners",
+      .default = "unknown"
+    )
+
+  if (any(trial_decision == "unknown") | any(is.na(trial_decision))) browser()
 
   known_year <- lubridate::year(seasons$start_date[seasons$season == n])
 
@@ -293,7 +331,8 @@ for (n in season_numbers) {
              where(is.character),
              \(x) str_remove(x, pattern = "\\[.*?\\]")
            ),
-           season = n) |>
+           season = n,
+           chosen_by = trial_decision) |>
     rename(
       number = 1,
       name = 3,
@@ -327,16 +366,18 @@ for (n in season_numbers) {
       name,
       live,
       contestant,
+      chosen_by,
       stars_available,
       stars_won
     ) |>
     # Combine double rows (two contestants)
-    group_by(season, number, date, name, live) |>
+    group_by(season, number, date, name, live, chosen_by) |>
     summarise(contestant = str_c(contestant, collapse = "; "),
               stars_available = sum(stars_available, na.rm = TRUE),
               stars_won = sum(stars_won, na.rm = TRUE),
               .groups = "drop")
 
+  ### Overall trial performance #####
   # Overall trial performance
   cli::cli_alert("Beginning trial performance table")
   trial_perf_raw <- tables_raw[["trial_performance"]]
@@ -394,6 +435,7 @@ for (n in season_numbers) {
            trial_performance)
 
 
+  ### RATINGS #####
   # Clean up ratings
   cli::cli_alert("Beginning ratings table")
   if (n <= 9) {
@@ -460,6 +502,7 @@ for (n in season_numbers) {
       )
     )
 
+  ### CHALLENGES #####
   # Tidy up dingo dollar challenge tables
   if ("dingo_dollar_challenges" %in% names(tables)) {
 
@@ -560,6 +603,7 @@ for (n in season_numbers) {
     }
   }
 
+  ### FINALISE AND APPEND #####
   # Get finalised datasets and append
   cli::cli_alert("Appending season tables")
   season_contestants <- contestants_overview |>

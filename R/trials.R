@@ -12,6 +12,9 @@
 #'   \item{date}{(\emph{Date}) Date of the trial}
 #'   \item{name}{(\emph{character}) Name of the trial}
 #'   \item{live}{(\emph{logical}) TRUE if the trial was broadcast live, FALSE otherwise}
+#'   \item{chosen_by}{(\emph{character}) Who chose the contestants for the trial? One of:
+#'   'public' if it was by public/viewer vote; 'contestants' if the campmates chose amongst themselves;
+#'   or 'showrunners' if the trial was compulsory for the chosen contestants}
 #'   \item{contestant}{(\emph{character}) First name(s) of the contestant(s) that took part in the trial.
 #'   Where there are multiple contestants, they are separated by a semi-colon.}
 #'   \item{stars_available}{(\emph{numeric}) Maximum number of stars available to win in this trial}
