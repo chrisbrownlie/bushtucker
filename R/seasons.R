@@ -1,0 +1,24 @@
+#' IACGMOOH seasons data
+#'
+#' Data on each of the first 24 seasons of the UK TV show "I'm A Celebrity, Get
+#' Me Out Of Here"
+#'
+#' @format ## `seasons`
+#' A data frame with 24 rows and 11 columns:
+#' \describe{
+#'   \item{season}{(\emph{numeric}) Season of the show}
+#'   \item{contestants}{(\emph{numeric}) Number of celebrities participating this season}
+#'   \item{location}{(\emph{character}) Location where the season was filmed}
+#'   \item{presenters}{(\emph{character}) Names of the two presenters for the show this season}
+#'   \item{episodes}{(\emph{numeric}) Number of episodes (usually - but not always - the number
+#'   of days the season ran for)}
+#'   \item{start_date}{(\emph{Date}) Date of the first episode}
+#'   \item{end_date}{(\emph{Date}) Date of the final episode}
+#'   \item{winner}{(\emph{character}) Name of the celebrity who was crowned King/Queen of the Jungle}
+#'   \item{runner_up}{(\emph{character}) Name of the second-placed celebrity in the final}
+#'   \item{third_place}{(\emph{character}) Name of the third-placed celebrity in the final}
+#'   \item{avg_viewers_millions}{(\emph{numeric}) Average number of viewers in millions
+#'   across all episodes this season}
+#' }
+#' @source <https://en.wikipedia.org/wiki/I'm_a_Celebrity...Get_Me_Out_of_Here!_(British_TV_series)#Series_overview>
+"seasons"

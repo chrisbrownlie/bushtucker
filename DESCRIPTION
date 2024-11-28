@@ -3,7 +3,8 @@ Title: 'I'm a Celebrity Get Me Out Of Here' Data
 Version: 0.0.0.9000
 Authors@R: 
     person("Chris", "Brownlie", , "chris.brownlie@hotmail.co.uk", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: Data on the first 24 seasons of the UK TV show 'I'm a Celebrity, 
+  Get Me Out of Here', broadcast on ITV from 2002-2024.
 License: MIT + file LICENSE
 Suggests: 
     testthat (>= 3.0.0)

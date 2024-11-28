@@ -22,26 +22,56 @@ knitr::opts_chunk$set(
 
 {bushtucker} is a data package which provides datasets regarding the first
 24 seasons of the UK TV show "I'm A Celebrity, Get Me Out Of Here", spanning
-from 2002 to 2024.
+from 2002 to 2024 and broadcast on ITV.
 
-The show involves celebrities living in a jungle for several weeks, completing
-difficult challenges to earn meals. These challenges are called 'Bushtucker Trials',
-hence the name of the package.
+The show follows a group of UK celebrities camping in an Australian rainforest 
+(or Welsh castle for seasons 20-21, due to COVID) for several weeks, completing 
+physical and mental endurance challenges to earn meals. These challenges are 
+called 'Bushtucker Trials', hence the name of the package.
+
+More information on the format can be found on 
+[the show's Wikipedia pages](https://en.wikipedia.org/wiki/I'm_a_Celebrity...Get_Me_Out_of_Here!_(British_TV_series)), 
+which is also where the data in this package comes from.
 
 ## Installation
 
 You can install the development version of bushtucker like so:
 
-``` r
+```{r setup, eval = FALSE}
 # install.packages("pak")
 pak::pkg_install("chrisbrownlie/bushtucker")
+
+# OR
+
+# install.packages("remotes")
+remotes::install_github("chrisbrownlie/bushtucker")
 ```
 
-## Example
+## Datasets
 
-This is a basic example which shows you how to solve a common problem:
+There are 6 key datasets included in this package:
 
-```{r example, eval = FALSE}
+- `seasons`: one row for each of the 24 seasons, includes info on location, presenters and dates
+- `contestants`: one row per contestant per season, includes info on occupation, final position and trial performance
+- `results`: one row per contestant per vote, includes the season and date, whether the contestant was eliminated during that vote, as well as the share of the vote they received (where available)
+- `trials`: one row per trial, includes the season, name, episode, which contestant(s) took part and how they performed
+- `challenges`: one row per challenge (Celebrity Chest, Dingo Dollar, Castle Coin or Deals on Wheels), includes the season, episode, contestant(s) that took part, whether the campmates got the question correct and the prize they received
+- `ratings`: one row per episode, includes the total viewership and weekly ranking of the episode
+
+Below you can see a snapshot of each dataset.
+
+```{r glimpse_data}
 library(bushtucker)
-## basic example code
+
+pillar::glimpse(seasons)
+
+pillar::glimpse(contestants)
+
+pillar::glimpse(results)
+
+pillar::glimpse(trials)
+
+pillar::glimpse(challenges)
+
+pillar::glimpse(ratings)
 ```
