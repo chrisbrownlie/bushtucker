@@ -9,6 +9,7 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/bushtucker)](https://CRAN.R-project.org/package=bushtucker)
+[![pkgdown](https://github.com/chrisbrownlie/bushtucker/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/chrisbrownlie/bushtucker/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
 {bushtucker} is a data package which provides datasets regarding the
