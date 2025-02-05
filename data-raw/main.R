@@ -32,11 +32,14 @@ for (n in season_numbers) {
   tables_raw <- wiki_page |>
     html_elements("table.wikitable")
 
-  # Adjustments
+  # Manual adjustments for consistency
   if (n %in% c(7, 8, 9)) {
     tables_raw <- tables_raw[-5]
   }
   if (n == 15) {
+    tables_raw <- tables_raw[-c(4,7)]
+  }
+  if (n == 24) {
     tables_raw <- tables_raw[-6]
   }
 
@@ -169,76 +172,75 @@ for (n in season_numbers) {
     str_replace("\\s+", "_") |>
     str_to_lower()
 
-  # Season 24 vote results not yet available
-  if (n < 24) {
-    vote_results <- n_trials_tbl |>
-      set_names(new_names) |>
-      select(
-        contestant = 1,
-        starts_with("day")
-      ) |>
-      filter(!contestant %in% c("", "Celebrity"),
-             !str_detect(contestant, "Eliminated|Notes|Bottom two")) |>
-      pivot_longer(
-        cols = -contestant,
-        names_to = "vote",
-        values_to = "result"
-      ) |>
-      mutate(
-        season = n,
-        vote_mday = str_remove(vote, "day_"),
-        vote_day = as.numeric(str_extract(vote_mday, "^\\d+")),
-        vote_day_part = as.numeric(str_extract(vote_mday, "\\d+$")),
-        vote_day_part = if_else(vote_day == vote_day_part, 1, vote_day_part),
-        vote_share = str_extract(result, "[\\d\\.]+%"),
-        vote_share = as.numeric(str_extract(vote_share, "[\\d\\.]+"))/100,
-        result_outcome = case_when(
-          str_starts(result, "1st|2nd") ~ "safe",
-          str_starts(result, "Safe") ~ "safe",
-          str_starts(result, "Winner") ~ "safe",
-          str_starts(result, "Bottom two") ~ "safe",
-          str_starts(result, "\\d") ~ "eliminated",
-          str_starts(result, "Eliminated|Withdrew") ~ NA,
-          str_starts(result, "Runner-up") ~ "eliminated",
-          .default = "unknown"
-        ),
-        position = case_when(
-          str_starts(result, "\\d") ~ str_extract(result, "\\d+"),
-          str_starts(result, "Winner") ~ "1",
-          str_starts(result, "Runner-up") ~ "2",
-          str_starts(result, "Eliminated|Withdrew|Safe|Bottom two") ~ NA,
-          .default = "unknown"
-        ),
-        across(
-          c(vote_day, vote_day_part, position, vote_share),
-          as.numeric
-        )
-      ) |>
-      arrange(vote_day, vote_day_part) |>
-      mutate(x = 1,
-             n = cumsum(x),
-             .by = contestant) |>
-      select(
-        season,
-        day = vote_day,
-        vote = n,
-        contestant,
-        result = result_outcome,
-        position,
-        vote_share
+  vote_results <- n_trials_tbl |>
+    set_names(new_names) |>
+    select(
+      contestant = 1,
+      starts_with("day")
+    ) |>
+    filter(!contestant %in% c("", "Celebrity"),
+           !str_detect(contestant, "Eliminated|Notes|Bottom two")) |>
+    pivot_longer(
+      cols = -contestant,
+      names_to = "vote",
+      values_to = "result"
+    ) |>
+    mutate(
+      season = n,
+      vote_mday = str_remove(vote, "day_"),
+      vote_day = as.numeric(str_extract(vote_mday, "^\\d+")),
+      vote_day_part = as.numeric(str_extract(vote_mday, "\\d+$")),
+      vote_day_part = if_else(vote_day == vote_day_part, 1, vote_day_part),
+      vote_share = str_extract(result, "[\\d\\.]+%"),
+      vote_share = as.numeric(str_extract(vote_share, "[\\d\\.]+"))/10,
+      result_outcome = case_when(
+        str_starts(result, "1st|2nd") ~ "safe",
+        str_starts(result, "Safe") ~ "safe",
+        str_starts(result, "Winner") ~ "safe",
+        str_starts(result, "Bottom two") ~ "safe",
+        str_starts(result, "\\d") ~ "eliminated",
+        str_starts(result, "Eliminated|Withdrew") ~ NA,
+        str_starts(result, "Runner-up") ~ "eliminated",
+        str_starts(result, "Immune") ~ "immune",
+        .default = "unknown"
+      ),
+      position = case_when(
+        str_starts(result, "\\d") ~ str_extract(result, "\\d+"),
+        str_starts(result, "Winner") ~ "1",
+        str_starts(result, "Runner-up") ~ "2",
+        str_starts(result, "Eliminated|Withdrew|Safe|Bottom two") ~ NA,
+        .default = "unknown"
+      ),
+      across(
+        c(vote_day, vote_day_part, position, vote_share),
+        as.numeric
       )
-    # Manual adjustment for season 1
-    if (n == 1) {
-      vote_results <- vote_results |>
-        mutate(result = if_else(position == max(position, na.rm = TRUE),
-                                "eliminated",
-                                "safe"),
-               .by = vote)
-    }
+    ) |>
+    arrange(vote_day, vote_day_part) |>
+    mutate(x = 1,
+           n = cumsum(x),
+           .by = contestant) |>
+    select(
+      season,
+      day = vote_day,
+      vote = n,
+      contestant,
+      result = result_outcome,
+      position,
+      vote_share
+    )
 
-    results <- bind_rows(results,
-                         vote_results)
+  # Manual adjustment for season 1
+  if (n == 1) {
+    vote_results <- vote_results |>
+      mutate(result = if_else(position == max(position, na.rm = TRUE),
+                              "eliminated",
+                              "safe"),
+             .by = vote)
   }
+
+  results <- bind_rows(results,
+                       vote_results)
 
   ### TRIALS #####
   # Tidy up trials - use raw table as stars col is weird
